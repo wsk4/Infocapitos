@@ -12,7 +12,7 @@ import com.example.infocapitos.ui.viewmodel.AddViewModel
 fun AddScreen(vm: AddViewModel = viewModel()) {
 
     Column(modifier = Modifier.fillMaxSize()) {
-        TopAppBar(title = { Text("Nuevo Item") })
+        TopAppBar(title = { Text("Nueva Publicacion") })
 
         Column(
             modifier = Modifier
@@ -23,7 +23,7 @@ fun AddScreen(vm: AddViewModel = viewModel()) {
             OutlinedTextField(
                 value = vm.name.value,
                 onValueChange = { vm.onNameChange(it) },
-                label = { Text("Nombre") },
+                label = { Text("Titulo de la noticia") },
                 isError = vm.nameError.value != null,
                 modifier = Modifier.fillMaxWidth()
             )
