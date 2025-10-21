@@ -18,7 +18,7 @@ fun HomeScreen(viewModel: MainViewModel, onItemClick: (Int) -> Unit) {
     val noticias = viewModel.noticias.collectAsState()
 
     Column(modifier = Modifier.fillMaxSize()) {
-        TopAppBar(title = { Text("Lista de Noticias") })
+        TopAppBar(title = { Text("Lista de Noticias 3") })
         LazyColumn(contentPadding = PaddingValues(8.dp)) {
             items(noticias.value) { item ->
                 ItemRow(noticia = item, onClick = { onItemClick(item.id) })
