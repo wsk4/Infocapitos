@@ -20,6 +20,7 @@ import com.example.infocapitos.navigation.BottomNavNoticia
 import com.example.infocapitos.navigation.Routes
 import com.example.infocapitos.ui.screens.NoticiaScreen
 import com.example.infocapitos.ui.screens.DetailScreen
+import com.example.infocapitos.ui.screens.FileUploadScreen
 import com.example.infocapitos.ui.screens.HomeScreen
 import com.example.infocapitos.ui.screens.ProfileScreen
 import com.example.infocapitos.ui.theme.InfocapitosTheme
@@ -43,7 +44,8 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun App(application: Application) { // AHORA: Recibe Application como parámetro
     val navController = rememberNavController()
-    val bottomNoticias = listOf(BottomNavNoticia.Home,  BottomNavNoticia.Add, BottomNavNoticia.Profile)
+    val bottomNoticias = listOf(BottomNavNoticia.Home,  BottomNavNoticia.Add, BottomNavNoticia.Profile,
+        BottomNavNoticia.Picture)
 
     // Inicializamos DAO y Factory usando la instancia de Application
     val dao = AppDataBase.getDatabase(application).newsDao()
@@ -67,9 +69,11 @@ fun App(application: Application) { // AHORA: Recibe Application como parámetro
             // Usamos la Factory para instanciar el ViewModel
             composable(Routes.ADD) {
                 val viewModel: NoticiaViewModel = viewModel(factory = factory)
-                NoticiaScreen(viewModel)
-            }
-            composable(Routes.PROFILE) { ProfileScreen() }
+                NoticiaScreen(viewModel)            }
+
+            composable(Routes.PICTURE) {FileUploadScreen()}
+
+            composable(Routes.PROFILE) { ProfileScreen(navController = navController) }
             composable(
                 route = Routes.DETAIL,
                 arguments = listOf(navArgument("noticiaId") { type = NavType.IntType })

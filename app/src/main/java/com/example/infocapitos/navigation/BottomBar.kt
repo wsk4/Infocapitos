@@ -2,6 +2,7 @@ package com.example.infocapitos.navigation
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
@@ -16,6 +17,7 @@ sealed class BottomNavNoticia(val route: String, val label: String, val icon: an
 
     object Add : BottomNavNoticia(Routes.ADD, "Agregar", Icons.Default.Add)
 
+    object Picture : BottomNavNoticia(Routes.PICTURE,"Foto", Icons.Default.Face)
     object Profile : BottomNavNoticia(Routes.PROFILE, "Perfil", Icons.Default.Person)
 }
 

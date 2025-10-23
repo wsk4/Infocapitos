@@ -5,6 +5,7 @@ object Routes {
     const val PROFILE = "profile"
     const val ADD = "add"
 
+    const val PICTURE = "foto"
     const val DETAIL = "detail/{noticiaId}"
 
     fun detailRoute(noticiaId: Int) = "detail/$noticiaId"
