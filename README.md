@@ -31,7 +31,6 @@ Está desarrollada completamente en **Kotlin**, aprovechando las herramientas na
 
 - Visualización de noticias en una interfaz limpia y moderna  
 - Navegación fluida entre secciones  
-- Adaptación a distintos tamaños de pantalla  
 
 ---
 
