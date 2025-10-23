@@ -1,6 +1,6 @@
 package com.example.infocapitos.data.repository
 
-import com.example.infocapitos.data.model.Noticia
+import com.example.infocapitos.data.remote.model.Noticia
 
 class SampleRepository {
 

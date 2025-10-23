@@ -1,5 +1,6 @@
 package com.example.infocapitos
 
+import android.app.Application // Importación necesaria
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -13,29 +14,40 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.infocapitos.data.remote.AppDataBase
 import com.example.infocapitos.navigation.BottomBar
 import com.example.infocapitos.navigation.BottomNavNoticia
 import com.example.infocapitos.navigation.Routes
-import com.example.infocapitos.ui.screens.AddScreen
+import com.example.infocapitos.ui.screens.NoticiaScreen
 import com.example.infocapitos.ui.screens.DetailScreen
 import com.example.infocapitos.ui.screens.HomeScreen
 import com.example.infocapitos.ui.screens.ProfileScreen
 import com.example.infocapitos.ui.theme.InfocapitosTheme
 import com.example.infocapitos.ui.viewmodel.MainViewModel
+import com.example.infocapitos.ui.viewmodel.NoticiaViewModel
+import com.example.infocapitos.ui.viewmodel.NoticiaViewModelFactory
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            InfocapitosTheme { App() }
+            InfocapitosTheme {
+                // AHORA: Pasamos la instancia de Application a App()
+                App(application = application)
+            }
         }
     }
 }
+
 @Composable
-fun App() {
+fun App(application: Application) { // AHORA: Recibe Application como parámetro
     val navController = rememberNavController()
     val bottomNoticias = listOf(BottomNavNoticia.Home,  BottomNavNoticia.Add, BottomNavNoticia.Profile)
+
+    // Inicializamos DAO y Factory usando la instancia de Application
+    val dao = AppDataBase.getDatabase(application).newsDao()
+    val factory = NoticiaViewModelFactory(dao)
 
     Scaffold(
         bottomBar = { BottomBar(navController, bottomNoticias) }
@@ -52,8 +64,10 @@ fun App() {
                 })
             }
 
+            // Usamos la Factory para instanciar el ViewModel
             composable(Routes.ADD) {
-                AddScreen()
+                val viewModel: NoticiaViewModel = viewModel(factory = factory)
+                NoticiaScreen(viewModel)
             }
             composable(Routes.PROFILE) { ProfileScreen() }
             composable(

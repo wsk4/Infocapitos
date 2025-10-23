@@ -2,7 +2,7 @@ package com.example.infocapitos.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.infocapitos.data.model.Noticia
+import com.example.infocapitos.data.remote.model.Noticia
 import com.example.infocapitos.data.repository.SampleRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

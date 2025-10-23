@@ -9,7 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.infocapitos.data.model.Noticia
+import com.example.infocapitos.data.remote.model.Noticia
 import com.example.infocapitos.ui.viewmodel.MainViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -18,7 +18,7 @@ fun HomeScreen(viewModel: MainViewModel, onItemClick: (Int) -> Unit) {
     val noticias = viewModel.noticias.collectAsState()
 
     Column(modifier = Modifier.fillMaxSize()) {
-        TopAppBar(title = { Text("Lista de Noticias 3") })
+        TopAppBar(title = { Text("Lista de Noticias") })
         LazyColumn(contentPadding = PaddingValues(8.dp)) {
             items(noticias.value) { item ->
                 ItemRow(noticia = item, onClick = { onItemClick(item.id) })
