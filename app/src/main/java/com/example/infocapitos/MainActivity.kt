@@ -32,55 +32,52 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        // Inicializamos DAO y Factory usando la instancia de Application
+        val dao = AppDataBase.getDatabase(application).newsDao()
+        val factory = NoticiaViewModelFactory(dao)
+
+
         setContent {
             InfocapitosTheme {
-                // AHORA: Pasamos la instancia de Application a App()
-                App(application = application)
-            }
-        }
-    }
-}
+                val navController = rememberNavController()
+                val bottomNoticias = listOf(BottomNavNoticia.Home,  BottomNavNoticia.Add, BottomNavNoticia.Profile,
+                    BottomNavNoticia.Picture)
 
-@Composable
-fun App(application: Application) { // AHORA: Recibe Application como parámetro
-    val navController = rememberNavController()
-    val bottomNoticias = listOf(BottomNavNoticia.Home,  BottomNavNoticia.Add, BottomNavNoticia.Profile,
-        BottomNavNoticia.Picture)
 
-    // Inicializamos DAO y Factory usando la instancia de Application
-    val dao = AppDataBase.getDatabase(application).newsDao()
-    val factory = NoticiaViewModelFactory(dao)
 
-    Scaffold(
-        bottomBar = { BottomBar(navController, bottomNoticias) }
-    ) { innerPadding ->
-        NavHost(
-            navController = navController,
-            startDestination = Routes.HOME,
-            modifier = androidx.compose.ui.Modifier.padding(innerPadding)
-        ) {
-            composable(Routes.HOME) {
-                val vm: MainViewModel = viewModel()
-                HomeScreen(viewModel = vm, onItemClick = { id ->
-                    navController.navigate(Routes.detailRoute(id))
-                })
-            }
+                Scaffold(
+                    bottomBar = { BottomBar(navController, bottomNoticias) }
+                ) { innerPadding ->
+                    NavHost(
+                        navController = navController,
+                        startDestination = Routes.HOME,
+                        modifier = androidx.compose.ui.Modifier.padding(innerPadding)
+                    ) {
+                        composable(Routes.HOME) {
+                            val vm: MainViewModel = viewModel()
+                            HomeScreen(viewModel = vm, onItemClick = { id ->
+                                navController.navigate(Routes.detailRoute(id))
+                            })
+                        }
 
-            // Usamos la Factory para instanciar el ViewModel
-            composable(Routes.ADD) {
-                val viewModel: NoticiaViewModel = viewModel(factory = factory)
-                NoticiaScreen(viewModel)            }
+                        // Usamos la Factory para instanciar el ViewModel
+                        composable(Routes.ADD) {
+                            val viewModel: NoticiaViewModel = viewModel(factory = factory)
+                            NoticiaScreen(viewModel)            }
 
-            composable(Routes.PICTURE) {FileUploadScreen()}
+                        composable(Routes.PICTURE) {FileUploadScreen()}
 
-            composable(Routes.PROFILE) { ProfileScreen(navController = navController) }
-            composable(
-                route = Routes.DETAIL,
-                arguments = listOf(navArgument("noticiaId") { type = NavType.IntType })
-            ) { backStackEntry ->
-                val vm: MainViewModel = viewModel()
-                val id = backStackEntry.arguments?.getInt("noticiaId") ?: -1
-                DetailScreen(noticiaId = id, viewModel = vm, onBack = { navController.popBackStack() })
+                        composable(Routes.PROFILE) { ProfileScreen(navController = navController) }
+                        composable(
+                            route = Routes.DETAIL,
+                            arguments = listOf(navArgument("noticiaId") { type = NavType.IntType })
+                        ) { backStackEntry ->
+                            val vm: MainViewModel = viewModel()
+                            val id = backStackEntry.arguments?.getInt("noticiaId") ?: -1
+                            DetailScreen(noticiaId = id, viewModel = vm, onBack = { navController.popBackStack() })
+                        }
+                    }
+                }
             }
         }
     }
