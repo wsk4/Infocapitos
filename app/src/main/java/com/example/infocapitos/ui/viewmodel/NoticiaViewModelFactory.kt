@@ -7,7 +7,7 @@ import kotlin.jvm.java
 
 class NoticiaViewModelFactory (private val dao: NoticiaDao): ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(NoticiaViewModelFactory::class.java)){
+        if (modelClass.isAssignableFrom(NoticiaViewModel::class.java)){
             @Suppress("UNCHECKED_CAST")
             return NoticiaViewModel(dao) as T
         }
