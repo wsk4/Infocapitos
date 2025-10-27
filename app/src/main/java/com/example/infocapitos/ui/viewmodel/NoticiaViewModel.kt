@@ -9,39 +9,28 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-class NoticiaViewModel (private val dao: NoticiaDao): ViewModel() {
+class NoticiaViewModel(private val dao: NoticiaDao) : ViewModel() {
 
-
+    // Lista de noticias desde la base de datos
     val noticia = dao.getAllNews()
         .stateIn(
             viewModelScope,
-            SharingStarted.Companion.WhileSubscribed(5000),
+            SharingStarted.WhileSubscribed(5000),
             emptyList()
         )
 
-
-    fun addNews(title: String, description: String){
-        viewModelScope.launch {
-            dao.addNews(Noticia(title = title, description = description))
-        }
-    }
-
-
-    fun deleteNews(noticia: Noticia){
-        viewModelScope.launch {
-            dao.deleteNews(noticia)
-        }}
-
+    // Campos del formulario
     var name = mutableStateOf("")
     var nameError = mutableStateOf<String?>(null)
 
     var description = mutableStateOf("")
     var descriptionError = mutableStateOf<String?>(null)
 
+    // Funciones para actualizar los campos
     fun onNameChange(value: String) {
         name.value = value
         nameError.value = when {
-            value.isBlank() -> "El nombre no puede estar vacío"
+            value.isBlank() -> "El título no puede estar vacío"
             value.length < 3 -> "Debe tener al menos 3 caracteres"
             else -> null
         }
@@ -55,10 +44,25 @@ class NoticiaViewModel (private val dao: NoticiaDao): ViewModel() {
         }
     }
 
-    fun isFormValid(): Boolean {
-        return nameError.value == null &&
-                descriptionError.value == null &&
-                name.value.isNotBlank() &&
-                description.value.isNotBlank()
+    // Validación central del formulario
+    fun validateForm(): Boolean {
+        // Actualiza los errores al validar
+        onNameChange(name.value)
+        onDescriptionChange(description.value)
+        return nameError.value == null && descriptionError.value == null
+    }
+
+    // Agregar noticia
+    fun addNews(title: String, description: String) {
+        viewModelScope.launch {
+            dao.addNews(Noticia(title = title, description = description))
+        }
+    }
+
+    // Eliminar noticia
+    fun deleteNews(noticia: Noticia) {
+        viewModelScope.launch {
+            dao.deleteNews(noticia)
+        }
     }
 }
