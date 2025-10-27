@@ -50,18 +50,34 @@ fun NoticiaScreen(viewModel: NoticiaViewModel){
                 .fillMaxSize()
         ){
             OutlinedTextField(
-                value = title,
-                onValueChange = { title = it},
-                label = { Text("Titutlo de la noticia")},
+                value = viewModel.name.value,
+                onValueChange = { viewModel.onNameChange(it) },
+                label = { Text("Titulo de la noticia") },
+                isError = viewModel.nameError.value != null,
                 modifier = Modifier.fillMaxWidth()
             )
+            if (viewModel.nameError.value != null) {
+                Text(
+                    text = viewModel.nameError.value ?: "",
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
             Spacer(modifier = Modifier.height(8.dp))
             OutlinedTextField(
-                value = description,
-                onValueChange = {description = it},
-                label = { Text("Descripción de la noticia")},
+                value = viewModel.description.value,
+                onValueChange = { viewModel.onDescriptionChange(it) },
+                label = { Text("Descripción de la noticia") },
+                isError = viewModel.descriptionError.value != null,
                 modifier = Modifier.fillMaxWidth()
             )
+            if (viewModel.descriptionError.value != null) {
+                Text(
+                    text = viewModel.descriptionError.value ?: "",
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
             Spacer(modifier = Modifier.height(8.dp))
             Button(
                 onClick = {
