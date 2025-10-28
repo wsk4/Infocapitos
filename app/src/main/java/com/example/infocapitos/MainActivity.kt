@@ -32,7 +32,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        // Inicializamos DAO y Factory usando la instancia de Application
         val dao = AppDataBase.getDatabase(application).newsDao()
         val factory = NoticiaViewModelFactory(dao)
 
@@ -60,7 +59,6 @@ class MainActivity : ComponentActivity() {
                             })
                         }
 
-                        // Usamos la Factory para instanciar el ViewModel
                         composable(Routes.ADD) {
                             val viewModel: NoticiaViewModel = viewModel(factory = factory)
                             NoticiaScreen(viewModel)            }

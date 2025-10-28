@@ -1,13 +1,20 @@
 package com.example.infocapitos.ui.screens
 
+// Imports añadidos para estilos, iconos y formas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.infocapitos.data.remote.model.Noticia
 import com.example.infocapitos.ui.viewmodel.MainViewModel
@@ -17,27 +24,69 @@ import com.example.infocapitos.ui.viewmodel.MainViewModel
 fun HomeScreen(viewModel: MainViewModel, onItemClick: (Int) -> Unit) {
     val noticias = viewModel.noticias.collectAsState()
 
-    Column(modifier = Modifier.fillMaxSize()) {
-        TopAppBar(title = { Text("Lista de Noticias") })
-        LazyColumn(contentPadding = PaddingValues(8.dp)) {
+    // ESTILO: Usamos Scaffold para una estructura de app estándar (con TopBar)
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Lista de Noticias") },
+                // ESTILO: Colores para la barra (background-color y color en CSS)
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary
+                )
+            )
+        }
+    ) { paddingValues ->
+        LazyColumn(
+            modifier = Modifier.padding(paddingValues),
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
             items(noticias.value) { item ->
-                ItemRow(noticia = item, onClick = { onItemClick(item.id) })
-                Divider()
+                NoticiaListItem(noticia = item, onClick = { onItemClick(item.id) })
             }
         }
     }
 }
 
 @Composable
-fun ItemRow(noticia: Noticia, onClick: () -> Unit) {
-    Column(
+fun NoticiaListItem(noticia: Noticia, onClick: () -> Unit) {
+    Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() }
-            .padding(12.dp)
+            .clickable { onClick() },
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        shape = RoundedCornerShape(8.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
     ) {
-        Text(noticia.title, style = MaterialTheme.typography.titleMedium)
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(noticia.description, style = MaterialTheme.typography.bodyMedium, maxLines = 1)
+        Row(
+            modifier = Modifier
+                .padding(horizontal = 16.dp, vertical = 12.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = noticia.title,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = noticia.description,
+                    style = MaterialTheme.typography.bodyMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                )
+            }
+
+            Icon(
+                imageVector = Icons.Default.ChevronRight,
+                contentDescription = "Ver detalle",
+                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+            )
+        }
     }
 }

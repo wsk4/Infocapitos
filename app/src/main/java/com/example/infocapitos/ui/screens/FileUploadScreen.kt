@@ -35,15 +35,11 @@ fun FileUploadScreen() {
     var imageUri by remember { mutableStateOf<Uri?>(null) }
     var bitmap by remember { mutableStateOf<Bitmap?>(null) }
     var fileUri by remember { mutableStateOf<Uri?>(null) }
-    // --- LÓGICA DE PERMISOS ---
-    // PASO 1: Estado para saber si tenemos el permiso de cámara.
     var hasCameraPermission by remember {
         mutableStateOf(
             ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
         )
     }
-    // --- LANZADORES DE ACTIVIDADES ---
-    // 📸 Tomar foto con cámara (retorna Bitmap)
     val takePictureLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicturePreview()
     ) { bmp ->
@@ -51,13 +47,11 @@ fun FileUploadScreen() {
         imageUri = null
         fileUri = null
     }
-    // PASO 2: Launcher para solicitar el permiso de cámara.
     val cameraPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission(),
         onResult = { isGranted ->
             hasCameraPermission = isGranted
             if (isGranted) {
-                // Si el usuario da el permiso, lanzamos la cámara inmediatamente.
                 Toast.makeText(context, "Permiso concedido, abriendo cámara...", Toast.LENGTH_SHORT).show()
                 takePictureLauncher.launch(null)
             } else {
@@ -65,7 +59,6 @@ fun FileUploadScreen() {
             }
         }
     )
-    // 🖼️ Seleccionar imagen desde galería
     val selectImageLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri ->
@@ -73,7 +66,6 @@ fun FileUploadScreen() {
         bitmap = null
         fileUri = null
     }
-    // 📂 Seleccionar cualquier archivo (PDF, Word, etc.)
     val selectFileLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument()
     ) { uri ->
@@ -100,13 +92,10 @@ fun FileUploadScreen() {
                 style = MaterialTheme.typography.titleMedium
             )
 
-            // PASO 3: Modificar el onClick del botón de la cámara.
             Button(onClick = {
                 if (hasCameraPermission) {
-                    // Si ya tenemos el permiso, lanzamos la cámara directamente.
                     takePictureLauncher.launch(null)
                 } else {
-                    // Si no, pedimos el permiso. El launcher se encargará del resto.
                     cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
                 }
             }) {
@@ -120,7 +109,6 @@ fun FileUploadScreen() {
             }
             Divider(Modifier.padding(vertical = 16.dp))
 
-            // La lógica de la vista previa se mantiene igual, ¡perfecto!
             when {
                 bitmap != null -> {
                     Text("📸 Foto tomada:")
