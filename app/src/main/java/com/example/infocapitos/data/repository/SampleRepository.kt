@@ -8,7 +8,7 @@ class SampleRepository {
         Noticia(
             id= index,
             title = "noticia #$index",
-            description = "Detallada de la noticia $index."
+            description = "Detalle de la noticia $index."
         )
     }
 
