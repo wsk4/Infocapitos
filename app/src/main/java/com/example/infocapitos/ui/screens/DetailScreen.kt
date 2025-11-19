@@ -1,23 +1,23 @@
 package com.example.infocapitos.ui.screens
 
 import androidx.compose.foundation.layout.*
-// Imports añadidos para estilos y funcionalidad de scroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight // Para negrita (font-weight)
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp // Para el alto de línea (line-height)
-import com.example.infocapitos.ui.viewmodel.MainViewModel
+import androidx.compose.ui.unit.sp
+import com.example.infocapitos.ui.viewmodel.PostViewModel // Actualizado
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DetailScreen(noticiaId: Int, viewModel: MainViewModel, onBack: () -> Unit) {
-    val noticia = viewModel.getNoticia(noticiaId)
+fun DetailScreen(noticiaId: Int, viewModel: PostViewModel, onBack: () -> Unit) {
+    // Obtiene la noticia del StateFlow en memoria
+    val noticia = viewModel.getNoticiaById(noticiaId)
 
     Scaffold(
         topBar = {
@@ -25,9 +25,7 @@ fun DetailScreen(noticiaId: Int, viewModel: MainViewModel, onBack: () -> Unit) {
                 title = { Text("Detalle") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(
-                            Icons.Default.ArrowBack,
-                            contentDescription = "Atrás",
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Atrás",
                             tint = MaterialTheme.colorScheme.onPrimary
                         )
                     }

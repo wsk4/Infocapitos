@@ -1,6 +1,5 @@
 package com.example.infocapitos.ui.screens
 
-
 import android.Manifest
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -23,23 +22,20 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import coil.compose.rememberAsyncImagePainter
 
-
-
 @OptIn(ExperimentalMaterial3Api::class)
-
 @Composable
-
 fun FileUploadScreen() {
-
     val context = LocalContext.current
     var imageUri by remember { mutableStateOf<Uri?>(null) }
     var bitmap by remember { mutableStateOf<Bitmap?>(null) }
     var fileUri by remember { mutableStateOf<Uri?>(null) }
+
     var hasCameraPermission by remember {
         mutableStateOf(
             ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
         )
     }
+
     val takePictureLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicturePreview()
     ) { bmp ->
@@ -47,6 +43,7 @@ fun FileUploadScreen() {
         imageUri = null
         fileUri = null
     }
+
     val cameraPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission(),
         onResult = { isGranted ->
@@ -59,6 +56,7 @@ fun FileUploadScreen() {
             }
         }
     )
+
     val selectImageLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri ->
@@ -66,6 +64,7 @@ fun FileUploadScreen() {
         bitmap = null
         fileUri = null
     }
+
     val selectFileLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument()
     ) { uri ->
@@ -73,6 +72,7 @@ fun FileUploadScreen() {
         imageUri = null
         bitmap = null
     }
+
     Scaffold(
         topBar = {
             TopAppBar(title = { Text("Gestor de Archivos 📂") })

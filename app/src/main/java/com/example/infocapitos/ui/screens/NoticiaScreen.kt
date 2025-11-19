@@ -14,12 +14,29 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.infocapitos.data.remote.model.Noticia
-import com.example.infocapitos.ui.viewmodel.NoticiaViewModel
+import com.example.infocapitos.ui.viewmodel.PostViewModel // Actualizado
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NoticiaScreen(viewModel: NoticiaViewModel) {
-    val news by viewModel.noticia.collectAsState()
+fun NoticiaScreen(viewModel: PostViewModel) {
+    // Usa el StateFlow de noticias del PostViewModel
+    val news by viewModel.noticias.collectAsState()
+
+    // Estados locales para el formulario y validación
+    var name by remember { mutableStateOf("") }
+    var description by remember { mutableStateOf("") }
+    var nameError by remember { mutableStateOf<String?>(null) }
+    var descriptionError by remember { mutableStateOf<String?>(null) }
+
+    fun validateForm(): Boolean {
+        nameError = when {
+            name.isBlank() -> "El título no puede estar vacío"
+            name.length < 3 -> "Debe tener al menos 3 caracteres"
+            else -> null
+        }
+        descriptionError = if (description.isBlank()) "La descripción no puede estar vacía" else null
+        return nameError == null && descriptionError == null
+    }
 
     Scaffold(
         topBar = {
@@ -39,54 +56,44 @@ fun NoticiaScreen(viewModel: NoticiaViewModel) {
         ) {
 
             OutlinedTextField(
-                value = viewModel.name.value,
-                onValueChange = { viewModel.onNameChange(it) },
+                value = name,
+                onValueChange = { name = it; nameError = null },
                 label = { Text("Título de la noticia") },
-                isError = viewModel.nameError.value != null,
+                isError = nameError != null,
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(8.dp)
             )
-            viewModel.nameError.value?.let { error ->
-                Text(
-                    text = error,
-                    color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodySmall
-                )
+            nameError?.let { error ->
+                Text(text = error, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
             }
 
             Spacer(modifier = Modifier.height(12.dp))
 
             OutlinedTextField(
-                value = viewModel.description.value,
-                onValueChange = { viewModel.onDescriptionChange(it) },
+                value = description,
+                onValueChange = { description = it; descriptionError = null },
                 label = { Text("Descripción de la noticia") },
-                isError = viewModel.descriptionError.value != null,
+                isError = descriptionError != null,
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(8.dp)
             )
-            viewModel.descriptionError.value?.let { error ->
-                Text(
-                    text = error,
-                    color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodySmall
-                )
+            descriptionError?.let { error ->
+                Text(text = error, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(
                 onClick = {
-                    if (viewModel.validateForm()) {
-                        viewModel.addNews(viewModel.name.value, viewModel.description.value)
-                        viewModel.onNameChange("")
-                        viewModel.onDescriptionChange("")
+                    if (validateForm()) {
+                        viewModel.addNoticia(name, description)
+                        name = "" // Limpia
+                        description = "" // Limpia
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(8.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.secondary
-                )
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
             ) {
                 Text("Agregar noticia", modifier = Modifier.padding(vertical = 4.dp))
             }
@@ -103,7 +110,7 @@ fun NoticiaScreen(viewModel: NoticiaViewModel) {
                 contentPadding = PaddingValues(bottom = 16.dp)
             ) {
                 items(news){ news ->
-                    NoticiaItem(noticia = news, onDelete = { viewModel.deleteNews(news) })
+                    NoticiaItem(noticia = news, onDelete = { viewModel.deleteNoticia(news) })
                 }
             }
         }
@@ -118,10 +125,8 @@ fun NoticiaItem(noticia: Noticia, onDelete: (Noticia) -> Unit) {
             .padding(vertical = 4.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         shape = RoundedCornerShape(8.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-        ),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)) // border
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.5f))
     ){
 
         Row(
@@ -131,21 +136,10 @@ fun NoticiaItem(noticia: Noticia, onDelete: (Noticia) -> Unit) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
-                Text(
-                    text = noticia.title,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+            Column(modifier = Modifier.weight(1f)) {
+                Text(text = noticia.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = noticia.description,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
-                )
+                Text(text = noticia.description, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f))
             }
 
             IconButton(onClick = { onDelete(noticia) }) {

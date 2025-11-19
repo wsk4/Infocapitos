@@ -1,19 +1,19 @@
 package com.example.infocapitos.data.remote.dao
 
-import androidx.room.Dao
-import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
+import androidx.room.*
 import com.example.infocapitos.data.remote.model.Noticia
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface NoticiaDao {
-    @Insert(onConflict = OnConflictStrategy.Companion.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addNews(noticia: Noticia)
 
-    @Query("SELECT * FROM news ORDER BY id DESC")
+    // Para insertar múltiples noticias de la API en la caché
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(noticias: List<Noticia>)
+
+    @Query("SELECT * FROM news_table ORDER BY id DESC")
     fun getAllNews(): Flow<List<Noticia>>
 
     @Delete

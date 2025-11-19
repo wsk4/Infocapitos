@@ -1,13 +1,12 @@
 package com.example.infocapitos
 
-import android.app.Application // Importación necesaria
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -18,30 +17,31 @@ import com.example.infocapitos.data.remote.AppDataBase
 import com.example.infocapitos.navigation.BottomBar
 import com.example.infocapitos.navigation.BottomNavNoticia
 import com.example.infocapitos.navigation.Routes
-import com.example.infocapitos.ui.screens.NoticiaScreen
-import com.example.infocapitos.ui.screens.DetailScreen
-import com.example.infocapitos.ui.screens.FileUploadScreen
-import com.example.infocapitos.ui.screens.HomeScreen
-import com.example.infocapitos.ui.screens.ProfileScreen
-import com.example.infocapitos.ui.theme.InfocapitosTheme
-import com.example.infocapitos.ui.viewmodel.MainViewModel
-import com.example.infocapitos.ui.viewmodel.NoticiaViewModel
-import com.example.infocapitos.ui.viewmodel.NoticiaViewModelFactory
+import com.example.infocapitos.ui.screens.* import com.example.infocapitos.ui.theme.InfocapitosTheme
+import com.example.infocapitos.ui.viewmodel.PostViewModel
+import com.example.infocapitos.ui.viewmodel.PostViewModelFactory
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        val dao = AppDataBase.getDatabase(application).newsDao()
-        val factory = NoticiaViewModelFactory(dao)
 
+        // 1. Inicialización de la cadena de dependencias (DAO -> Factory)
+        val dao = AppDataBase.getDatabase(application).newsDao()
+        val factory = PostViewModelFactory(dao)
 
         setContent {
             InfocapitosTheme {
                 val navController = rememberNavController()
-                val bottomNoticias = listOf(BottomNavNoticia.Home,  BottomNavNoticia.Add, BottomNavNoticia.Profile,
-                    BottomNavNoticia.Picture)
+                val bottomNoticias = listOf(
+                    BottomNavNoticia.Home,
+                    BottomNavNoticia.Add,
+                    BottomNavNoticia.Profile,
+                    BottomNavNoticia.Picture
+                )
 
+                // 2. ViewModel principal (con factoría)
+                val postViewModel: PostViewModel = viewModel(factory = factory)
 
 
                 Scaffold(
@@ -50,30 +50,31 @@ class MainActivity : ComponentActivity() {
                     NavHost(
                         navController = navController,
                         startDestination = Routes.HOME,
-                        modifier = androidx.compose.ui.Modifier.padding(innerPadding)
+                        modifier = Modifier.padding(innerPadding)
                     ) {
                         composable(Routes.HOME) {
-                            val vm: MainViewModel = viewModel()
-                            HomeScreen(viewModel = vm, onItemClick = { id ->
+                            HomeScreen(viewModel = postViewModel, onItemClick = { id ->
                                 navController.navigate(Routes.detailRoute(id))
                             })
                         }
 
                         composable(Routes.ADD) {
-                            val viewModel: NoticiaViewModel = viewModel(factory = factory)
-                            NoticiaScreen(viewModel)            }
+                            NoticiaScreen(viewModel = postViewModel)
+                        }
 
-                        composable(Routes.PICTURE) {FileUploadScreen()}
-
-                        composable(Routes.PROFILE) { ProfileScreen(navController = navController) }
-                        composable(
-                            route = Routes.DETAIL,
+                        composable(Routes.DETAIL,
                             arguments = listOf(navArgument("noticiaId") { type = NavType.IntType })
                         ) { backStackEntry ->
-                            val vm: MainViewModel = viewModel()
                             val id = backStackEntry.arguments?.getInt("noticiaId") ?: -1
-                            DetailScreen(noticiaId = id, viewModel = vm, onBack = { navController.popBackStack() })
+                            DetailScreen(
+                                noticiaId = id,
+                                viewModel = postViewModel,
+                                onBack = { navController.popBackStack() }
+                            )
                         }
+
+                        composable(Routes.PROFILE) { ProfileScreen(navController = navController) }
+                        composable(Routes.PICTURE) { FileUploadScreen() }
                     }
                 }
             }

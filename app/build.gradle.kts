@@ -41,6 +41,8 @@ android {
 }
 
 dependencies {
+    //corrutinas para trabajo asincronico
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.0")
 
     // Retrofit
     implementation("com.squareup.retrofit2:retrofit:2.11.0")

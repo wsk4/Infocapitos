@@ -1,6 +1,5 @@
 package com.example.infocapitos.ui.screens
 
-// Imports añadidos para estilos, iconos y formas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -11,25 +10,25 @@ import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.infocapitos.data.remote.model.Noticia
-import com.example.infocapitos.ui.viewmodel.MainViewModel
+import com.example.infocapitos.ui.viewmodel.PostViewModel // Actualizado
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(viewModel: MainViewModel, onItemClick: (Int) -> Unit) {
-    val noticias = viewModel.noticias.collectAsState()
+fun HomeScreen(viewModel: PostViewModel, onItemClick: (Int) -> Unit) {
+    // Observa el StateFlow de Room/Repository
+    val noticias by viewModel.noticias.collectAsState()
 
-    // ESTILO: Usamos Scaffold para una estructura de app estándar (con TopBar)
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("Lista de Noticias") },
-                // ESTILO: Colores para la barra (background-color y color en CSS)
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     titleContentColor = MaterialTheme.colorScheme.onPrimary
@@ -42,7 +41,7 @@ fun HomeScreen(viewModel: MainViewModel, onItemClick: (Int) -> Unit) {
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(noticias.value) { item ->
+            items(noticias) { item ->
                 NoticiaListItem(noticia = item, onClick = { onItemClick(item.id) })
             }
         }
