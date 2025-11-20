@@ -19,7 +19,7 @@ import com.example.infocapitos.navigation.BottomNavNoticia
 import com.example.infocapitos.navigation.Routes
 import com.example.infocapitos.ui.screens.* import com.example.infocapitos.ui.theme.InfocapitosTheme
 import com.example.infocapitos.ui.viewmodel.PostViewModel
-import com.example.infocapitos.ui.viewmodel.ProfileViewModel // Importar ProfileViewModel
+import com.example.infocapitos.ui.viewmodel.ImagenViewModel // Importar ProfileViewModel
 import com.example.infocapitos.ui.viewmodel.ImageViewModelFactory // Importar Factory
 
 class MainActivity : ComponentActivity() {
@@ -52,7 +52,7 @@ class MainActivity : ComponentActivity() {
                 val postViewModel: PostViewModel = viewModel()
 
                 // ProfileViewModel (usa la Factory para inyectar el DAO)
-                val profileViewModel: ProfileViewModel = viewModel(factory = profileFactory)
+                val profileViewModel: ImagenViewModel = viewModel(factory = profileFactory)
 
                 Scaffold(
                     bottomBar = { BottomBar(navController, bottomNoticias) }
