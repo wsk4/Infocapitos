@@ -11,12 +11,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.infocapitos.ui.viewmodel.PostViewModel // Actualizado
+import com.example.infocapitos.ui.viewmodel.PostViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DetailScreen(noticiaId: Int, viewModel: PostViewModel, onBack: () -> Unit) {
-    // Obtiene la noticia del StateFlow en memoria
     val noticia = viewModel.getNoticiaById(noticiaId)
 
     Scaffold(
@@ -46,7 +45,7 @@ fun DetailScreen(noticiaId: Int, viewModel: PostViewModel, onBack: () -> Unit) {
         ) {
             if (noticia != null) {
                 Text(
-                    text = noticia.title,
+                    text = noticia.titulo,
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold
                 )
@@ -56,7 +55,7 @@ fun DetailScreen(noticiaId: Int, viewModel: PostViewModel, onBack: () -> Unit) {
                 Spacer(Modifier.height(16.dp))
 
                 Text(
-                    text = noticia.description,
+                    text = noticia.descripcion,
                     style = MaterialTheme.typography.bodyLarge,
                     lineHeight = 24.sp,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)

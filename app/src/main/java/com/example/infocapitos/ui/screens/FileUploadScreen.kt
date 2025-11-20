@@ -1,9 +1,13 @@
 package com.example.infocapitos.ui.screens
 
 import android.Manifest
+import android.content.ContentResolver
+import android.content.ContentValues
+import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.net.Uri
+import android.provider.MediaStore
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -20,15 +24,23 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
+import com.example.infocapitos.ui.viewmodel.ImagenViewModel // Usamos tu nombre de ViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FileUploadScreen() {
+fun FileUploadScreen(profileViewModel: ImagenViewModel = viewModel()) {
     val context = LocalContext.current
+    val contentResolver: ContentResolver = context.contentResolver
+
+    // Mantenemos el estado local para la vista previa
     var imageUri by remember { mutableStateOf<Uri?>(null) }
     var bitmap by remember { mutableStateOf<Bitmap?>(null) }
     var fileUri by remember { mutableStateOf<Uri?>(null) }
+
+    // 🚨 NUEVO ESTADO: URI de destino de la foto (necesaria para el launcher)
+    var cameraFileUri by remember { mutableStateOf<Uri?>(null) }
 
     var hasCameraPermission by remember {
         mutableStateOf(
@@ -36,35 +48,76 @@ fun FileUploadScreen() {
         )
     }
 
-    val takePictureLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.TakePicturePreview()
-    ) { bmp ->
-        bitmap = bmp
-        imageUri = null
-        fileUri = null
+    // Función auxiliar para crear un archivo de imagen en el almacenamiento (antes de tomar la foto)
+    fun createCameraFileUri(): Uri? {
+        val contentValues = ContentValues().apply {
+            put(MediaStore.MediaColumns.DISPLAY_NAME, "perfil_${System.currentTimeMillis()}.jpg")
+            put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
+        }
+        return contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
     }
 
+    // 1. LANZADOR DE CÁMARA (Guarda la URI y notifica al ViewModel)
+    val takePictureLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture() // Usa TakePicture (requiere URI)
+    ) { success ->
+        if (success) {
+            val uri = cameraFileUri
+
+            // 🚨 PERSISTENCIA: Guardar la URI de la foto recién tomada en el DAO
+            uri?.toString()?.let {
+                profileViewModel.saveProfileImageUri(it)
+                Toast.makeText(context, "Foto de cámara guardada en el perfil.", Toast.LENGTH_SHORT).show()
+            }
+
+            // Mostrar la imagen
+            imageUri = uri
+        } else {
+            Toast.makeText(context, "Captura de cámara cancelada.", Toast.LENGTH_SHORT).show()
+        }
+        bitmap = null
+        fileUri = null
+        cameraFileUri = null // Limpiar la URI temporal
+    }
+
+    // 2. LANZADOR DE PERMISOS (Prepara la URI antes de la cámara)
     val cameraPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission(),
         onResult = { isGranted ->
             hasCameraPermission = isGranted
             if (isGranted) {
-                Toast.makeText(context, "Permiso concedido, abriendo cámara...", Toast.LENGTH_SHORT).show()
-                takePictureLauncher.launch(null)
+                val uri = createCameraFileUri() // Crea el archivo de destino
+                cameraFileUri = uri // Almacena la URI de destino
+
+                if (uri != null) {
+                    Toast.makeText(context, "Permiso concedido, abriendo cámara...", Toast.LENGTH_SHORT).show()
+                    takePictureLauncher.launch(uri) // Lanza la cámara con la URI de destino
+                } else {
+                    Toast.makeText(context, "Error creando archivo.", Toast.LENGTH_SHORT).show()
+                }
+
             } else {
                 Toast.makeText(context, "Permiso de cámara denegado", Toast.LENGTH_SHORT).show()
             }
         }
     )
 
+    // 3. LANZADOR DE GALERÍA (Obtiene la URI y la guarda)
     val selectImageLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri ->
         imageUri = uri
         bitmap = null
         fileUri = null
+
+        if (uri != null) {
+            // 🚨 PERSISTENCIA: Guardar la URI de la imagen seleccionada
+            profileViewModel.saveProfileImageUri(uri.toString())
+            Toast.makeText(context, "Foto guardada en el perfil.", Toast.LENGTH_SHORT).show()
+        }
     }
 
+    // 4. LANZADOR DE ARCHIVOS
     val selectFileLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument()
     ) { uri ->
@@ -92,35 +145,32 @@ fun FileUploadScreen() {
                 style = MaterialTheme.typography.titleMedium
             )
 
+            // Botón de Cámara: Usa el launcher de permisos/preparación
             Button(onClick = {
                 if (hasCameraPermission) {
-                    takePictureLauncher.launch(null)
+                    // Si ya tiene permiso, lanza la preparación (que luego lanza la cámara)
+                    cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
                 } else {
                     cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
                 }
             }) {
                 Text("📷 Tomar Foto")
             }
+
+            // Botón de Galería
             Button(onClick = { selectImageLauncher.launch("image/*") }) {
                 Text("🖼️ Seleccionar Imagen")
             }
+
+            // Botón de Archivos
             Button(onClick = { selectFileLauncher.launch(arrayOf("*/*")) }) {
                 Text("📁 Seleccionar Archivo")
             }
             Divider(Modifier.padding(vertical = 16.dp))
 
+            // Visualización de resultados
             when {
-                bitmap != null -> {
-                    Text("📸 Foto tomada:")
-                    Image(
-                        bitmap = bitmap!!.asImageBitmap(),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(300.dp),
-                        contentScale = ContentScale.Crop
-                    )
-                }
+                // Ya no usamos 'bitmap' para la foto tomada, usamos 'imageUri' (el mismo que galería)
                 imageUri != null -> {
                     Text("🖼️ Imagen seleccionada:")
                     Image(

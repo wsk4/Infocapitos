@@ -13,22 +13,28 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.infocapitos.data.remote.AppDataBase
+import com.example.infocapitos.data.remote.AppDataBase // Importar AppDataBase
 import com.example.infocapitos.navigation.BottomBar
 import com.example.infocapitos.navigation.BottomNavNoticia
 import com.example.infocapitos.navigation.Routes
 import com.example.infocapitos.ui.screens.* import com.example.infocapitos.ui.theme.InfocapitosTheme
 import com.example.infocapitos.ui.viewmodel.PostViewModel
-import com.example.infocapitos.ui.viewmodel.PostViewModelFactory
+import com.example.infocapitos.ui.viewmodel.ProfileViewModel // Importar ProfileViewModel
+import com.example.infocapitos.ui.viewmodel.ImageViewModelFactory // Importar Factory
 
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        // 1. Inicialización de la cadena de dependencias (DAO -> Factory)
-        val dao = AppDataBase.getDatabase(application).newsDao()
-        val factory = PostViewModelFactory(dao)
+        // 1. 💾 INICIALIZACIÓN DE LA PERSISTENCIA (DAO y Factory)
+
+        // Obtener el DAO del perfil desde la base de datos Singleton
+        val profileDao = AppDataBase.getDatabase(application).profileDao()
+
+        // Crear la Factory para inyectar el DAO al ProfileViewModel
+        val profileFactory = ImageViewModelFactory(profileDao)
 
         setContent {
             InfocapitosTheme {
@@ -40,9 +46,13 @@ class MainActivity : ComponentActivity() {
                     BottomNavNoticia.Picture
                 )
 
-                // 2. ViewModel principal (con factoría)
-                val postViewModel: PostViewModel = viewModel(factory = factory)
+                // 2. 🧠 INSTANCIACIÓN DE VIEWMDELS
 
+                // PostViewModel (sin argumentos, usa constructor por defecto)
+                val postViewModel: PostViewModel = viewModel()
+
+                // ProfileViewModel (usa la Factory para inyectar el DAO)
+                val profileViewModel: ProfileViewModel = viewModel(factory = profileFactory)
 
                 Scaffold(
                     bottomBar = { BottomBar(navController, bottomNoticias) }
@@ -52,6 +62,7 @@ class MainActivity : ComponentActivity() {
                         startDestination = Routes.HOME,
                         modifier = Modifier.padding(innerPadding)
                     ) {
+                        // Noticias (API Live)
                         composable(Routes.HOME) {
                             HomeScreen(viewModel = postViewModel, onItemClick = { id ->
                                 navController.navigate(Routes.detailRoute(id))
@@ -73,8 +84,16 @@ class MainActivity : ComponentActivity() {
                             )
                         }
 
-                        composable(Routes.PROFILE) { ProfileScreen(navController = navController) }
-                        composable(Routes.PICTURE) { FileUploadScreen() }
+                        // Perfil (Persistencia de Foto)
+                        composable(Routes.PROFILE) {
+                            // 🚨 INYECCIÓN: Pasamos el ViewModel del perfil
+                            ProfileScreen(navController = navController, profileViewModel = profileViewModel)
+                        }
+
+                        composable(Routes.PICTURE) {
+                            // 🚨 INYECCIÓN: Pasamos el ViewModel para guardar la URI
+                            FileUploadScreen(profileViewModel = profileViewModel)
+                        }
                     }
                 }
             }

@@ -4,13 +4,16 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.example.infocapitos.data.remote.dao.NoticiaDao
-import com.example.infocapitos.data.remote.model.Noticia
+import com.example.infocapitos.data.remote.dao.ImagenDao
+import com.example.infocapitos.data.remote.model.ImagenPerfil // Solo la entidad de imagen
 
-@Database(entities = [Noticia::class], version = 1, exportSchema = false)
+// ⚠️ CAMBIO 1: La lista de entidades solo contiene ProfileImage.
+// ⚠️ CAMBIO 2: La versión se establece en 1 (o la que corresponda si es un proyecto nuevo).
+@Database(entities = [ImagenPerfil::class], version = 1, exportSchema = false)
 abstract class AppDataBase : RoomDatabase() {
 
-    abstract fun newsDao(): NoticiaDao
+    // 🚨 CAMBIO 3: Solo se expone el DAO del perfil.
+    abstract fun profileDao(): ImagenDao
 
     companion object {
         @Volatile
@@ -21,7 +24,7 @@ abstract class AppDataBase : RoomDatabase() {
                 Room.databaseBuilder(
                     context.applicationContext,
                     AppDataBase::class.java,
-                    "news_db"
+                    "profile_db" // 🚨 Se recomienda cambiar el nombre del archivo DB
                 ).build().also { INSTANCE = it }
             }
         }

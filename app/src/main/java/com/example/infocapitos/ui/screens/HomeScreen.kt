@@ -16,19 +16,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.example.infocapitos.data.remote.model.Noticia
-import com.example.infocapitos.ui.viewmodel.PostViewModel // Actualizado
+import com.example.infocapitos.data.remote.model.PostNews
+import com.example.infocapitos.ui.viewmodel.PostViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(viewModel: PostViewModel, onItemClick: (Int) -> Unit) {
-    // Observa el StateFlow de Room/Repository
     val noticias by viewModel.noticias.collectAsState()
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Lista de Noticias") },
+                title = { Text("Lista de Noticias (API Live)") },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     titleContentColor = MaterialTheme.colorScheme.onPrimary
@@ -49,7 +48,7 @@ fun HomeScreen(viewModel: PostViewModel, onItemClick: (Int) -> Unit) {
 }
 
 @Composable
-fun NoticiaListItem(noticia: Noticia, onClick: () -> Unit) {
+fun NoticiaListItem(noticia: PostNews, onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -67,13 +66,13 @@ fun NoticiaListItem(noticia: Noticia, onClick: () -> Unit) {
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = noticia.title,
+                    text = noticia.titulo,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = noticia.description,
+                    text = noticia.descripcion,
                     style = MaterialTheme.typography.bodyMedium,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
