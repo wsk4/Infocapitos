@@ -24,7 +24,9 @@ fun DetailScreen(noticiaId: Int, viewModel: PostViewModel, onBack: () -> Unit) {
                 title = { Text("Detalle") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Atrás",
+                        Icon(
+                            Icons.Default.ArrowBack,
+                            contentDescription = "Atrás",
                             tint = MaterialTheme.colorScheme.onPrimary
                         )
                     }
@@ -49,11 +51,9 @@ fun DetailScreen(noticiaId: Int, viewModel: PostViewModel, onBack: () -> Unit) {
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold
                 )
-
                 Spacer(Modifier.height(12.dp))
                 Divider(thickness = 1.dp, color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
                 Spacer(Modifier.height(16.dp))
-
                 Text(
                     text = noticia.descripcion,
                     style = MaterialTheme.typography.bodyLarge,
