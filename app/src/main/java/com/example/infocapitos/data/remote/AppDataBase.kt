@@ -13,7 +13,7 @@ import com.example.infocapitos.data.remote.model.ImagenPerfil // Solo la entidad
 abstract class AppDataBase : RoomDatabase() {
 
     // 🚨 CAMBIO 3: Solo se expone el DAO del perfil.
-    abstract fun profileDao(): ImagenDao
+    abstract fun imagenDao(): ImagenDao
 
     companion object {
         @Volatile

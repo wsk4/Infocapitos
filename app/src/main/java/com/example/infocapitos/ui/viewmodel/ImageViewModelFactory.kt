@@ -10,11 +10,11 @@ class ImageViewModelFactory(private val dao: ImagenDao): ViewModelProvider.Facto
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
 
         // 1. Verificamos que la clase solicitada sea ProfileViewModel
-        if (modelClass.isAssignableFrom(ProfileViewModel::class.java)){
+        if (modelClass.isAssignableFrom(ImagenViewModel::class.java)){
 
             // 2. Creamos e inyectamos la dependencia (ProfileDao)
             @Suppress("UNCHECKED_CAST")
-            return ProfileViewModel(dao) as T
+            return ImagenViewModel(dao) as T
         }
 
         // Si se pide una clase que no conocemos, lanzamos una excepción

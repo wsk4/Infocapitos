@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 class ImagenViewModel(private val dao: ImagenDao) : ViewModel() {
 
     // Observa la foto desde la base de datos
-    val profileImage = dao.getImagenPerfil()
+    val imagenPerfil = dao.getImagenPerfil()
         .stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(5000),

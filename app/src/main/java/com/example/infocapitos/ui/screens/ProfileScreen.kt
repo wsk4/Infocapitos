@@ -19,15 +19,15 @@ import androidx.lifecycle.viewmodel.compose.viewModel // Para inyectar el ViewMo
 import androidx.navigation.NavController
 import coil.compose.AsyncImage // Para cargar la imagen desde la URI
 import com.example.infocapitos.navigation.Routes
-import com.example.infocapitos.ui.viewmodel.ProfileViewModel // ViewModel del perfil
+import com.example.infocapitos.ui.viewmodel.ImagenViewModel // ViewModel del perfil
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 // 🚨 CAMBIO: Se añade ProfileViewModel como argumento con valor por defecto
-fun ProfileScreen(navController: NavController, profileViewModel: ProfileViewModel = viewModel()) {
+fun ProfileScreen(navController: NavController, imagenViewModel: ImagenViewModel = viewModel()) {
 
     // 🚨 CLAVE: Observar el estado del perfil desde Room
-    val profileImage by profileViewModel.profileImage.collectAsState()
+    val profileImage by imagenViewModel.imagenPerfil.collectAsState()
     val profileImagePath = profileImage.imagen // La ruta o URI guardada
 
     Scaffold(

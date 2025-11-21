@@ -4,6 +4,6 @@ import com.example.infocapitos.data.remote.model.PostNews
 import retrofit2.http.GET
 
 interface ApiService {
-    @GET("posts")
+    @GET("noticias")
     suspend fun getPosts(): List<PostNews>
 }

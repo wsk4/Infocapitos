@@ -31,7 +31,7 @@ class MainActivity : ComponentActivity() {
         // 1. 💾 INICIALIZACIÓN DE LA PERSISTENCIA (DAO y Factory)
 
         // Obtener el DAO del perfil desde la base de datos Singleton
-        val profileDao = AppDataBase.getDatabase(application).profileDao()
+        val profileDao = AppDataBase.getDatabase(application).imagenDao()
 
         // Crear la Factory para inyectar el DAO al ProfileViewModel
         val profileFactory = ImageViewModelFactory(profileDao)
@@ -52,7 +52,7 @@ class MainActivity : ComponentActivity() {
                 val postViewModel: PostViewModel = viewModel()
 
                 // ProfileViewModel (usa la Factory para inyectar el DAO)
-                val profileViewModel: ImagenViewModel = viewModel(factory = profileFactory)
+                val imagenViewModel: ImagenViewModel = viewModel(factory = profileFactory)
 
                 Scaffold(
                     bottomBar = { BottomBar(navController, bottomNoticias) }
@@ -87,12 +87,12 @@ class MainActivity : ComponentActivity() {
                         // Perfil (Persistencia de Foto)
                         composable(Routes.PROFILE) {
                             // 🚨 INYECCIÓN: Pasamos el ViewModel del perfil
-                            ProfileScreen(navController = navController, profileViewModel = profileViewModel)
+                            ProfileScreen(navController = navController, imagenViewModel = imagenViewModel)
                         }
 
                         composable(Routes.PICTURE) {
                             // 🚨 INYECCIÓN: Pasamos el ViewModel para guardar la URI
-                            FileUploadScreen(profileViewModel = profileViewModel)
+                            FileUploadScreen(imagenViewModel = imagenViewModel)
                         }
                     }
                 }

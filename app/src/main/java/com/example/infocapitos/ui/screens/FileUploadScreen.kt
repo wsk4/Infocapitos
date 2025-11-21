@@ -30,7 +30,7 @@ import com.example.infocapitos.ui.viewmodel.ImagenViewModel // Usamos tu nombre 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FileUploadScreen(profileViewModel: ImagenViewModel = viewModel()) {
+fun FileUploadScreen(imagenViewModel: ImagenViewModel = viewModel()) {
     val context = LocalContext.current
     val contentResolver: ContentResolver = context.contentResolver
 
@@ -66,7 +66,7 @@ fun FileUploadScreen(profileViewModel: ImagenViewModel = viewModel()) {
 
             // 🚨 PERSISTENCIA: Guardar la URI de la foto recién tomada en el DAO
             uri?.toString()?.let {
-                profileViewModel.saveProfileImageUri(it)
+                imagenViewModel.saveProfileImageUri(it)
                 Toast.makeText(context, "Foto de cámara guardada en el perfil.", Toast.LENGTH_SHORT).show()
             }
 
@@ -112,7 +112,7 @@ fun FileUploadScreen(profileViewModel: ImagenViewModel = viewModel()) {
 
         if (uri != null) {
             // 🚨 PERSISTENCIA: Guardar la URI de la imagen seleccionada
-            profileViewModel.saveProfileImageUri(uri.toString())
+            imagenViewModel.saveProfileImageUri(uri.toString())
             Toast.makeText(context, "Foto guardada en el perfil.", Toast.LENGTH_SHORT).show()
         }
     }
