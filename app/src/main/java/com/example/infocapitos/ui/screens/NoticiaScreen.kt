@@ -101,20 +101,6 @@ fun NoticiaScreen(viewModel: PostViewModel = viewModel()) {
             ) {
                 Text("Agregar noticia", modifier = Modifier.padding(vertical = 4.dp))
             }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Text(
-                "Noticias Publicadas",
-                style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-
-            LazyColumn(contentPadding = PaddingValues(bottom = 16.dp)) {
-                items(news) { noticia ->
-                    NoticiaItem(noticia = noticia)
-                }
-            }
         }
     }
 }
