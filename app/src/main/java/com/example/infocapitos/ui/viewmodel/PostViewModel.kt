@@ -17,8 +17,8 @@ class PostViewModel : ViewModel() {
     val noticiasList: StateFlow<List<PostNews>> = _noticiasList
 
     init {
-        fetchNoticias()  // Carga inicial
-        startPolling()   // Inicia refresco periódico
+        fetchNoticias()
+        startPolling()
     }
 
     private fun fetchNoticias() {
@@ -40,7 +40,7 @@ class PostViewModel : ViewModel() {
                 } catch (e: Exception) {
                     println("Error en polling noticias: ${e.localizedMessage}")
                 }
-                delay(3000) // Espera 30 segundos antes de la próxima consulta
+                delay(30000)
             }
         }
     }
@@ -52,9 +52,8 @@ class PostViewModel : ViewModel() {
     fun addNoticia(titulo: String, descripcion: String) {
         viewModelScope.launch {
             try {
-                val newPost = PostNews(id = 0, titulo = titulo, descripcion = descripcion)
+                val newPost = PostNews(titulo = titulo, descripcion = descripcion)
                 repository.addNoticia(newPost)
-                // Opcional: actualizar inmediatamente tras insertar
                 fetchNoticias()
             } catch (e: Exception) {
                 println("Error al agregar noticia: ${e.localizedMessage}")

@@ -37,7 +37,10 @@ fun HomeScreen(viewModel: PostViewModel = viewModel(), onItemClick: (Int) -> Uni
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(noticias) { item ->
-                NoticiaListItem(noticia = item, onClick = { onItemClick(item.id) })
+                // Solo mostrar si id no es null
+                item.id?.let { idNonNull ->
+                    NoticiaListItem(noticia = item, onClick = { onItemClick(idNonNull) })
+                }
             }
         }
     }
@@ -52,10 +55,8 @@ fun NoticiaListItem(noticia: PostNews, onClick: () -> Unit) {
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
     ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
-            verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+        Column(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
         ) {
             Text(
                 text = noticia.titulo,
