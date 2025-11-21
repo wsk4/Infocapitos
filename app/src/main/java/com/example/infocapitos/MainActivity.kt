@@ -31,7 +31,8 @@ class MainActivity : ComponentActivity() {
                 val bottomNoticias = listOf(
                     BottomNavNoticia.Home,
                     BottomNavNoticia.Add,
-                    BottomNavNoticia.Profile
+                    BottomNavNoticia.Profile,
+                    BottomNavNoticia.Picture
                 )
 
                 Scaffold(
@@ -70,6 +71,10 @@ class MainActivity : ComponentActivity() {
 
                         composable(Routes.PROFILE) {
                             ProfileScreen(navController = navController)
+                        }
+
+                        composable(Routes.PICTURE) {
+                            FileUploadScreen()
                         }
                     }
                 }
