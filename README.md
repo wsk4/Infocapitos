@@ -42,3 +42,6 @@ Está desarrollada completamente en **Kotlin**, aprovechando las herramientas na
 - login
 
 ---
+## Api
+https://github.com/wsk4/infocapitos-back
+
