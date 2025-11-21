@@ -40,7 +40,7 @@ class PostViewModel : ViewModel() {
                 } catch (e: Exception) {
                     println("Error en polling noticias: ${e.localizedMessage}")
                 }
-                delay(30000)
+                delay(5000)
             }
         }
     }

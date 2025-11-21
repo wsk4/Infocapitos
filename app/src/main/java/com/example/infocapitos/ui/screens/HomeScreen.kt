@@ -37,7 +37,6 @@ fun HomeScreen(viewModel: PostViewModel = viewModel(), onItemClick: (Int) -> Uni
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(noticias) { item ->
-                // Solo mostrar si id no es null
                 item.id?.let { idNonNull ->
                     NoticiaListItem(noticia = item, onClick = { onItemClick(idNonNull) })
                 }
