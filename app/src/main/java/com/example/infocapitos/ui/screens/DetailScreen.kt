@@ -21,12 +21,12 @@ fun DetailScreen(noticiaId: Int, viewModel: PostViewModel, onBack: () -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Detalle") },
+                title = { Text("Detalle de la Noticia") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
                             Icons.Default.ArrowBack,
-                            contentDescription = "Atrás",
+                            contentDescription = "Volver",
                             tint = MaterialTheme.colorScheme.onPrimary
                         )
                     }
@@ -37,10 +37,10 @@ fun DetailScreen(noticiaId: Int, viewModel: PostViewModel, onBack: () -> Unit) {
                 )
             )
         }
-    ) { padding ->
+    ) { paddingValues ->
         Column(
             modifier = Modifier
-                .padding(padding)
+                .padding(paddingValues)
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 16.dp, vertical = 24.dp)
@@ -51,9 +51,9 @@ fun DetailScreen(noticiaId: Int, viewModel: PostViewModel, onBack: () -> Unit) {
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold
                 )
-                Spacer(Modifier.height(12.dp))
-                Divider(thickness = 1.dp, color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
-                Spacer(Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(12.dp))
+                Divider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f), thickness = 1.dp)
+                Spacer(modifier = Modifier.height(16.dp))
                 Text(
                     text = noticia.descripcion,
                     style = MaterialTheme.typography.bodyLarge,
@@ -61,7 +61,11 @@ fun DetailScreen(noticiaId: Int, viewModel: PostViewModel, onBack: () -> Unit) {
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
                 )
             } else {
-                Text("Noticia no encontrada")
+                Text(
+                    text = "Cargando o noticia no encontrada...",
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Medium
+                )
             }
         }
     }
