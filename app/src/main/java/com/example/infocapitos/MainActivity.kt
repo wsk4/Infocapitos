@@ -74,7 +74,7 @@ class MainActivity : ComponentActivity() {
                         }
 
                         composable(Routes.PICTURE) {
-                            FileUploadScreen()
+                            FileUploadScreen(navController)
                         }
                     }
                 }

@@ -1,6 +1,7 @@
 package com.example.infocapitos.ui.screens
 
 import android.Manifest
+import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.net.Uri
@@ -11,6 +12,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -20,12 +23,26 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
+import com.example.infocapitos.data.remote.AppDataBase
+import com.example.infocapitos.ui.viewmodel.ProfileViewModel
+import com.example.infocapitos.ui.viewmodel.ProfileViewModelFactory
+import java.io.File
+import java.io.FileOutputStream
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FileUploadScreen() {
+fun FileUploadScreen(navController: NavController) { // <--- Recibe NavController
     val context = LocalContext.current
+
+    // Inicializar ViewModel
+    val database = AppDataBase.getDatabase(context)
+    val viewModel: ProfileViewModel = viewModel(
+        factory = ProfileViewModelFactory(database.userImageDao())
+    )
+
     var imageUri by remember { mutableStateOf<Uri?>(null) }
     var bitmap by remember { mutableStateOf<Bitmap?>(null) }
     var fileUri by remember { mutableStateOf<Uri?>(null) }
@@ -36,35 +53,51 @@ fun FileUploadScreen() {
         )
     }
 
+    // --- LAUNCHERS ---
+
+    // 1. CÁMARA
     val takePictureLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicturePreview()
     ) { bmp ->
-        bitmap = bmp
-        imageUri = null
-        fileUri = null
+        if (bmp != null) {
+            // Guardar en archivo y luego en BD
+            val savedUri = saveBitmapToCache(context, bmp)
+            viewModel.saveImage(savedUri.toString())
+
+            Toast.makeText(context, "Foto guardada", Toast.LENGTH_SHORT).show()
+
+            // IMPORTANTE: Volver al perfil
+            navController.popBackStack()
+        }
     }
 
+    // 2. PERMISO CÁMARA
     val cameraPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission(),
         onResult = { isGranted ->
             hasCameraPermission = isGranted
             if (isGranted) {
-                Toast.makeText(context, "Permiso concedido, abriendo cámara...", Toast.LENGTH_SHORT).show()
                 takePictureLauncher.launch(null)
             } else {
-                Toast.makeText(context, "Permiso de cámara denegado", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Permiso denegado", Toast.LENGTH_SHORT).show()
             }
         }
     )
 
+    // 3. GALERÍA
     val selectImageLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri ->
-        imageUri = uri
-        bitmap = null
-        fileUri = null
+        if (uri != null) {
+            viewModel.saveImage(uri.toString())
+            Toast.makeText(context, "Imagen actualizada", Toast.LENGTH_SHORT).show()
+
+            // IMPORTANTE: Volver al perfil
+            navController.popBackStack()
+        }
     }
 
+    // 4. DOCUMENTOS (Opcional, no afecta foto de perfil)
     val selectFileLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument()
     ) { uri ->
@@ -75,7 +108,14 @@ fun FileUploadScreen() {
 
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("Gestor de Archivos 📂") })
+            TopAppBar(
+                title = { Text("Subir Foto") },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
+                    }
+                }
+            )
         }
     ) { padding ->
         Column(
@@ -87,58 +127,48 @@ fun FileUploadScreen() {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text(
-                text = "Selecciona una opción:",
-                style = MaterialTheme.typography.titleMedium
-            )
+            Text(text = "Selecciona una opción:", style = MaterialTheme.typography.titleMedium)
 
+            // Botón Cámara (con protección anti-crash)
             Button(onClick = {
                 if (hasCameraPermission) {
-                    takePictureLauncher.launch(null)
+                    try {
+                        takePictureLauncher.launch(null)
+                    } catch (e: Exception) {
+                        Toast.makeText(context, "Error al abrir cámara", Toast.LENGTH_SHORT).show()
+                    }
                 } else {
                     cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
                 }
-            }) {
-                Text("📷 Tomar Foto")
+            }, modifier = Modifier.fillMaxWidth()) {
+                Text("📷 Tomar Foto Nueva")
             }
-            Button(onClick = { selectImageLauncher.launch("image/*") }) {
-                Text("🖼️ Seleccionar Imagen")
+
+            // Botón Galería
+            Button(onClick = { selectImageLauncher.launch("image/*") }, modifier = Modifier.fillMaxWidth()) {
+                Text("🖼️ Seleccionar de Galería")
             }
-            Button(onClick = { selectFileLauncher.launch(arrayOf("*/*")) }) {
-                Text("📁 Seleccionar Archivo")
+
+            // Botón Archivo
+            OutlinedButton(onClick = { selectFileLauncher.launch(arrayOf("*/*")) }, modifier = Modifier.fillMaxWidth()) {
+                Text("📁 Subir otro archivo")
             }
+
             Divider(Modifier.padding(vertical = 16.dp))
 
-            when {
-                bitmap != null -> {
-                    Text("📸 Foto tomada:")
-                    Image(
-                        bitmap = bitmap!!.asImageBitmap(),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(300.dp),
-                        contentScale = ContentScale.Crop
-                    )
-                }
-                imageUri != null -> {
-                    Text("🖼️ Imagen seleccionada:")
-                    Image(
-                        painter = rememberAsyncImagePainter(imageUri),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(300.dp),
-                        contentScale = ContentScale.Crop
-                    )
-                }
-                fileUri != null -> {
-                    Text("📁 Archivo seleccionado: ${fileUri?.lastPathSegment}")
-                }
-                else -> {
-                    Text("Ningún archivo seleccionado aún")
-                }
+            // Previsualización (solo se ve si no navegas atrás inmediatamente)
+            if (fileUri != null) {
+                Text("📁 Archivo: ${fileUri?.lastPathSegment}")
             }
         }
     }
+}
+
+// FUNCIÓN AUXILIAR NECESARIA (Copiar al final del archivo)
+private fun saveBitmapToCache(context: Context, bitmap: Bitmap): Uri {
+    val file = File(context.cacheDir, "profile_captured_${System.currentTimeMillis()}.jpg")
+    FileOutputStream(file).use { stream ->
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
+    }
+    return Uri.fromFile(file)
 }
