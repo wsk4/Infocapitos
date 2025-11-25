@@ -26,16 +26,13 @@ import com.example.infocapitos.ui.viewmodel.ProfileViewModelFactory
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileScreen(navController: NavController) {
-    val context = LocalContext.current
-
-    // 1. Conectamos con la BD
-    val database = AppDataBase.getDatabase(context)
-    val viewModel: ProfileViewModel = viewModel(
-        factory = ProfileViewModelFactory(database.userImageDao())
+fun ProfileScreen(
+    navController: NavController,
+    // CAMBIO CLAVE: Recibimos el ViewModel como parámetro con valor por defecto
+    viewModel: ProfileViewModel = viewModel(
+        factory = ProfileViewModelFactory(AppDataBase.getDatabase(LocalContext.current).userImageDao())
     )
-
-    // 2. Observamos la imagen (se actualiza sola al volver de la otra pantalla)
+) {
     val userImage by viewModel.currentImage.collectAsState()
 
     Scaffold(
@@ -58,11 +55,11 @@ fun ProfileScreen(navController: NavController) {
             verticalArrangement = Arrangement.Center
         ) {
 
-            // 3. Lógica visual
+            // Lógica visual
             if (userImage != null && userImage!!.imageUri.isNotEmpty()) {
                 Image(
                     painter = rememberAsyncImagePainter(Uri.parse(userImage!!.imageUri)),
-                    contentDescription = "Foto de perfil",
+                    contentDescription = "Foto de perfil", // Usado en tests
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .size(150.dp)
@@ -72,7 +69,7 @@ fun ProfileScreen(navController: NavController) {
             } else {
                 Icon(
                     imageVector = Icons.Default.AccountCircle,
-                    contentDescription = "Icono por defecto",
+                    contentDescription = "Icono por defecto", // Usado en tests
                     modifier = Modifier.size(150.dp),
                     tint = MaterialTheme.colorScheme.primary
                 )
@@ -88,7 +85,6 @@ fun ProfileScreen(navController: NavController) {
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // 4. Botón para ir a tomar/elegir foto
             Button(
                 onClick = {
                     navController.navigate(Routes.PICTURE)

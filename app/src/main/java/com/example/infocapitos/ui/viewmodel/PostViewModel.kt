@@ -4,14 +4,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.infocapitos.data.remote.model.PostNews
 import com.example.infocapitos.data.repository.PostNewRepository
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.delay
 
-class PostViewModel : ViewModel() {
-
-    private val repository = PostNewRepository()
+// Permitimos inyectar el repositorio para testing
+class PostViewModel(
+    private val repository: PostNewRepository = PostNewRepository()
+) : ViewModel() {
 
     private val _noticiasList = MutableStateFlow<List<PostNews>>(emptyList())
     val noticiasList: StateFlow<List<PostNews>> = _noticiasList
@@ -33,6 +34,7 @@ class PostViewModel : ViewModel() {
 
     private fun startPolling() {
         viewModelScope.launch {
+            delay(1000)
             while (true) {
                 try {
                     val latest = repository.getNoticias()

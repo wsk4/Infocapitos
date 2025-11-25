@@ -8,7 +8,6 @@ import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -18,14 +17,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import coil.compose.rememberAsyncImagePainter
 import com.example.infocapitos.data.remote.AppDataBase
 import com.example.infocapitos.ui.viewmodel.ProfileViewModel
 import com.example.infocapitos.ui.viewmodel.ProfileViewModelFactory
@@ -34,14 +30,14 @@ import java.io.FileOutputStream
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FileUploadScreen(navController: NavController) { // <--- Recibe NavController
-    val context = LocalContext.current
-
-    // Inicializar ViewModel
-    val database = AppDataBase.getDatabase(context)
-    val viewModel: ProfileViewModel = viewModel(
-        factory = ProfileViewModelFactory(database.userImageDao())
+fun FileUploadScreen(
+    navController: NavController,
+    // CAMBIO CLAVE: Inyectamos el ViewModel
+    viewModel: ProfileViewModel = viewModel(
+        factory = ProfileViewModelFactory(AppDataBase.getDatabase(LocalContext.current).userImageDao())
     )
+) {
+    val context = LocalContext.current
 
     var imageUri by remember { mutableStateOf<Uri?>(null) }
     var bitmap by remember { mutableStateOf<Bitmap?>(null) }
@@ -54,24 +50,17 @@ fun FileUploadScreen(navController: NavController) { // <--- Recibe NavControlle
     }
 
     // --- LAUNCHERS ---
-
-    // 1. CÁMARA
     val takePictureLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicturePreview()
     ) { bmp ->
         if (bmp != null) {
-            // Guardar en archivo y luego en BD
             val savedUri = saveBitmapToCache(context, bmp)
             viewModel.saveImage(savedUri.toString())
-
             Toast.makeText(context, "Foto guardada", Toast.LENGTH_SHORT).show()
-
-            // IMPORTANTE: Volver al perfil
             navController.popBackStack()
         }
     }
 
-    // 2. PERMISO CÁMARA
     val cameraPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission(),
         onResult = { isGranted ->
@@ -84,20 +73,16 @@ fun FileUploadScreen(navController: NavController) { // <--- Recibe NavControlle
         }
     )
 
-    // 3. GALERÍA
     val selectImageLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri ->
         if (uri != null) {
             viewModel.saveImage(uri.toString())
             Toast.makeText(context, "Imagen actualizada", Toast.LENGTH_SHORT).show()
-
-            // IMPORTANTE: Volver al perfil
             navController.popBackStack()
         }
     }
 
-    // 4. DOCUMENTOS (Opcional, no afecta foto de perfil)
     val selectFileLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument()
     ) { uri ->
@@ -129,7 +114,6 @@ fun FileUploadScreen(navController: NavController) { // <--- Recibe NavControlle
         ) {
             Text(text = "Selecciona una opción:", style = MaterialTheme.typography.titleMedium)
 
-            // Botón Cámara (con protección anti-crash)
             Button(onClick = {
                 if (hasCameraPermission) {
                     try {
@@ -144,19 +128,16 @@ fun FileUploadScreen(navController: NavController) { // <--- Recibe NavControlle
                 Text("📷 Tomar Foto Nueva")
             }
 
-            // Botón Galería
             Button(onClick = { selectImageLauncher.launch("image/*") }, modifier = Modifier.fillMaxWidth()) {
                 Text("🖼️ Seleccionar de Galería")
             }
 
-            // Botón Archivo
             OutlinedButton(onClick = { selectFileLauncher.launch(arrayOf("*/*")) }, modifier = Modifier.fillMaxWidth()) {
                 Text("📁 Subir otro archivo")
             }
 
             Divider(Modifier.padding(vertical = 16.dp))
 
-            // Previsualización (solo se ve si no navegas atrás inmediatamente)
             if (fileUri != null) {
                 Text("📁 Archivo: ${fileUri?.lastPathSegment}")
             }
@@ -164,7 +145,6 @@ fun FileUploadScreen(navController: NavController) { // <--- Recibe NavControlle
     }
 }
 
-// FUNCIÓN AUXILIAR NECESARIA (Copiar al final del archivo)
 private fun saveBitmapToCache(context: Context, bitmap: Bitmap): Uri {
     val file = File(context.cacheDir, "profile_captured_${System.currentTimeMillis()}.jpg")
     FileOutputStream(file).use { stream ->
