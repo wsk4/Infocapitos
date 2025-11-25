@@ -32,7 +32,6 @@ import java.io.FileOutputStream
 @Composable
 fun FileUploadScreen(
     navController: NavController,
-    // CAMBIO CLAVE: Inyectamos el ViewModel
     viewModel: ProfileViewModel = viewModel(
         factory = ProfileViewModelFactory(AppDataBase.getDatabase(LocalContext.current).userImageDao())
     )
@@ -49,7 +48,6 @@ fun FileUploadScreen(
         )
     }
 
-    // --- LAUNCHERS ---
     val takePictureLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicturePreview()
     ) { bmp ->

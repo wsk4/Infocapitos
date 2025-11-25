@@ -28,7 +28,6 @@ import com.example.infocapitos.ui.viewmodel.ProfileViewModelFactory
 @Composable
 fun ProfileScreen(
     navController: NavController,
-    // CAMBIO CLAVE: Recibimos el ViewModel como parámetro con valor por defecto
     viewModel: ProfileViewModel = viewModel(
         factory = ProfileViewModelFactory(AppDataBase.getDatabase(LocalContext.current).userImageDao())
     )
@@ -59,7 +58,7 @@ fun ProfileScreen(
             if (userImage != null && userImage!!.imageUri.isNotEmpty()) {
                 Image(
                     painter = rememberAsyncImagePainter(Uri.parse(userImage!!.imageUri)),
-                    contentDescription = "Foto de perfil", // Usado en tests
+                    contentDescription = "Foto de perfil",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .size(150.dp)
@@ -69,7 +68,7 @@ fun ProfileScreen(
             } else {
                 Icon(
                     imageVector = Icons.Default.AccountCircle,
-                    contentDescription = "Icono por defecto", // Usado en tests
+                    contentDescription = "Icono por defecto",
                     modifier = Modifier.size(150.dp),
                     tint = MaterialTheme.colorScheme.primary
                 )

@@ -10,14 +10,12 @@ import kotlinx.coroutines.launch
 
 class ProfileViewModel(private val dao: UserImageDao) : ViewModel() {
 
-    // Observa la base de datos y mantiene el estado de la imagen actualizado
     val currentImage = dao.getLastImage().stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = null
     )
 
-    // Función para guardar la URI en la base de datos
     fun saveImage(uri: String) {
         viewModelScope.launch {
             dao.insertImage(UserImage(imageUri = uri))

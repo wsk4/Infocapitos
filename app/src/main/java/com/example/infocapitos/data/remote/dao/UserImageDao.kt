@@ -12,7 +12,6 @@ interface UserImageDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertImage(userImage: UserImage)
 
-    // Obtiene la última imagen guardada (la del ID más alto)
     @Query("SELECT * FROM user_images ORDER BY id DESC LIMIT 1")
     fun getLastImage(): Flow<UserImage?>
 }

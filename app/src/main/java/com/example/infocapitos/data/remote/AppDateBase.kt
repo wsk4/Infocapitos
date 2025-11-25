@@ -8,11 +8,11 @@ import androidx.room.RoomDatabase
 import com.example.infocapitos.data.remote.dao.UserImageDao
 import com.example.infocapitos.data.remote.model.UserImage
 
-// Agregamos UserImage al array de entities y subimos la versión
+
 @Database(entities = [UserImage::class], version = 2)
 abstract class AppDataBase : RoomDatabase() {
 
-    abstract fun userImageDao(): UserImageDao // Agregamos el nuevo DAO
+    abstract fun userImageDao(): UserImageDao
 
     companion object {
         @Volatile
@@ -23,9 +23,9 @@ abstract class AppDataBase : RoomDatabase() {
                 Room.databaseBuilder(
                     context.applicationContext,
                     AppDataBase::class.java,
-                    "app_database" // Nombre genérico para la DB
+                    "app_database"
                 )
-                    .fallbackToDestructiveMigration() // IMPORTANTE: Borra la DB vieja si cambias estructuras
+                    .fallbackToDestructiveMigration()
                     .build()
                     .also { INSTANCE = it }
             }
