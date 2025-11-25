@@ -13,11 +13,30 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.infocapitos.ui.viewmodel.PostViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
+
 @Composable
-fun DetailScreen(noticiaId: Int, viewModel: PostViewModel, onBack: () -> Unit) {
+fun DetailScreen(
+    noticiaId: Int,
+    viewModel: PostViewModel,
+    onBack: () -> Unit
+) {
     val noticia = viewModel.getNoticiaById(noticiaId)
 
+    DetailScreenContent(
+        titulo = noticia?.titulo,
+        descripcion = noticia?.descripcion,
+        onBack = onBack
+    )
+}
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DetailScreenContent(
+    titulo: String?,
+    descripcion: String?,
+    onBack: () -> Unit
+) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -45,17 +64,20 @@ fun DetailScreen(noticiaId: Int, viewModel: PostViewModel, onBack: () -> Unit) {
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 16.dp, vertical = 24.dp)
         ) {
-            if (noticia != null) {
+            if (titulo != null && descripcion != null) {
                 Text(
-                    text = noticia.titulo,
+                    text = titulo,
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(12.dp))
-                Divider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f), thickness = 1.dp)
+                HorizontalDivider(
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f),
+                    thickness = 1.dp
+                )
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    text = noticia.descripcion,
+                    text = descripcion,
                     style = MaterialTheme.typography.bodyLarge,
                     lineHeight = 24.sp,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)

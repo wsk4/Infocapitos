@@ -7,7 +7,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 
 class FakeUserImageDao : UserImageDao {
 
-    // Simulamos la tabla de la base de datos con una variable en memoria
     private val fakeImageFlow = MutableStateFlow<UserImage?>(null)
 
     override suspend fun insertImage(userImage: UserImage) {

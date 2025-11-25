@@ -15,11 +15,25 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.infocapitos.data.remote.model.PostNews
 import com.example.infocapitos.ui.viewmodel.PostViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(viewModel: PostViewModel = viewModel(), onItemClick: (Int) -> Unit) {
+fun HomeScreen(
+    viewModel: PostViewModel = viewModel(),
+    onItemClick: (Int) -> Unit
+) {
     val noticias by viewModel.noticiasList.collectAsState()
 
+    HomeScreenContent(
+        noticias = noticias,
+        onItemClick = onItemClick
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun HomeScreenContent(
+    noticias: List<PostNews>,
+    onItemClick: (Int) -> Unit
+) {
     Scaffold(
         topBar = {
             TopAppBar(

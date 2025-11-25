@@ -19,12 +19,12 @@ class FileUploadScreenTest {
         val viewModel = ProfileViewModel(fakeDao)
 
         composeTestRule.setContent {
-            // Usamos el controlador estándar
+
             val navController = rememberNavController()
             FileUploadScreen(navController = navController, viewModel = viewModel)
         }
 
-        // Verificamos que el título y las opciones están presentes
+
         composeTestRule.onNodeWithText("Selecciona una opción:").assertIsDisplayed()
 
         composeTestRule.onNodeWithText("📷 Tomar Foto Nueva").assertIsDisplayed()
